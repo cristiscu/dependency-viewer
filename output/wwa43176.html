@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body><script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+<script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+<div id="graph" style="text-align: center;"></div>
+<script>
+var graphviz = d3.select("#graph").graphviz()
+   .on("initEnd", () => { graphviz.renderDot(d3.select("#digraph").text()); });
+</script>
+<div id="digraph" style="display:none;">
+digraph G {
+
+  graph [ rankdir="LR" bgcolor="#ffffff" ]
+  node [ style="filled" shape="record" color="SkyBlue" ]
+  edge [ penwidth="1" color="#696969" dir="forward" ]
+
+  "EmployeesQX.PUBLIC.emp\n(table)";
+  "EmployeesQX.PUBLIC.Materialized\n(materialized view)";
+  "ALICE_DB.PUBLIC.ALICE_TABLE\n(table)";
+  "ALICE_DB.PUBLIC.ALICE_VIEW\n(view)";
+  "ALICE_DB.DATA.ALICE_TABLE\n(table)";
+  "ALICE_DB.DATA.ALICE_VIEW\n(view)";
+  "MATCHES.PUBLIC.CUSTOMERS\n(table)";
+  "MATCHES.PUBLIC.CUSTOMERS_VIEW\n(view)";
+  "MATCHES.PUBLIC.ASSOCIATES\n(table)";
+  "MATCHES.PUBLIC.ASSOCIATES_VIEW\n(view)";
+  "EmployeesQX.PUBLIC.Managers\n(view)";
+  "ALICE_DB.PUBLIC.ALICE_VIEW_F\n(function)";
+  "ALICE_DB.DATA.ALICE_VIEW_F\n(function)";
+  "NBA_CONSUMER.PUBLIC.AMRP\n(table)";
+  "NBA_CONSUMER.PUBLIC.GET_NAMES_IN_COMMON\n(function)";
+  "DB_A.PUBLIC.VIEW_A\n(view)";
+  "DB_A.PUBLIC.FUNC_A\n(function)";
+  "EmployeesQX.PUBLIC.checkManagerEmployee\n(function)";
+  "EmployeesQX.PUBLIC.proj\n(table)";
+  "EmployeesQX.PUBLIC.count_emp_in_proj\n(function)";
+  "CDC_DEMO.PUBLIC.FRUITS_STAGE\n(table)";
+  "CDC_DEMO.PUBLIC.FRUITS_STAGE_STREAM\n(stream)";
+
+  "EmployeesQX.PUBLIC.Materialized\n(materialized view)" -> "EmployeesQX.PUBLIC.emp\n(table)" [ style="solid" ];
+  "ALICE_DB.PUBLIC.ALICE_VIEW\n(view)" -> "ALICE_DB.PUBLIC.ALICE_TABLE\n(table)" [ style="dashed" ];
+  "ALICE_DB.DATA.ALICE_VIEW\n(view)" -> "ALICE_DB.DATA.ALICE_TABLE\n(table)" [ style="dashed" ];
+  "MATCHES.PUBLIC.CUSTOMERS_VIEW\n(view)" -> "MATCHES.PUBLIC.CUSTOMERS\n(table)" [ style="dashed" ];
+  "MATCHES.PUBLIC.ASSOCIATES_VIEW\n(view)" -> "MATCHES.PUBLIC.ASSOCIATES\n(table)" [ style="dashed" ];
+  "EmployeesQX.PUBLIC.Managers\n(view)" -> "EmployeesQX.PUBLIC.emp\n(table)" [ style="dashed" ];
+  "ALICE_DB.PUBLIC.ALICE_VIEW_F\n(function)" -> "ALICE_DB.PUBLIC.ALICE_TABLE\n(table)" [ style="dashed" ];
+  "ALICE_DB.DATA.ALICE_VIEW_F\n(function)" -> "ALICE_DB.DATA.ALICE_VIEW\n(view)" [ style="dashed" ];
+  "NBA_CONSUMER.PUBLIC.GET_NAMES_IN_COMMON\n(function)" -> "NBA_CONSUMER.PUBLIC.AMRP\n(table)" [ style="dashed" ];
+  "DB_A.PUBLIC.FUNC_A\n(function)" -> "DB_A.PUBLIC.VIEW_A\n(view)" [ style="dashed" ];
+  "EmployeesQX.PUBLIC.checkManagerEmployee\n(function)" -> "EmployeesQX.PUBLIC.Managers\n(view)" [ style="dashed" ];
+  "EmployeesQX.PUBLIC.count_emp_in_proj\n(function)" -> "EmployeesQX.PUBLIC.proj\n(table)" [ style="dashed" ];
+  "EmployeesQX.PUBLIC.count_emp_in_proj\n(function)" -> "EmployeesQX.PUBLIC.emp\n(table)" [ style="dashed" ];
+  "CDC_DEMO.PUBLIC.FRUITS_STAGE_STREAM\n(stream)" -> "CDC_DEMO.PUBLIC.FRUITS_STAGE\n(table)" [ style="dotted" ];
+}
+</div>

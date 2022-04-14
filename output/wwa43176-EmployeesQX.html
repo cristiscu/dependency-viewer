@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body><script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+<script src="https://unpkg.com/d3-graphviz@3.0.5/build/d3-graphviz.js"></script>
+<div id="graph" style="text-align: center;"></div>
+<script>
+var graphviz = d3.select("#graph").graphviz()
+   .on("initEnd", () => { graphviz.renderDot(d3.select("#digraph").text()); });
+</script>
+<div id="digraph" style="display:none;">
+digraph G {
+
+  graph [ rankdir="LR" bgcolor="#ffffff" ]
+  node [ style="filled" shape="record" color="SkyBlue" ]
+  edge [ penwidth="1" color="#696969" dir="forward" ]
+
+  "PUBLIC.emp\n(table)";
+  "PUBLIC.Materialized\n(materialized view)";
+  "PUBLIC.Managers\n(view)";
+  "PUBLIC.checkManagerEmployee\n(function)";
+  "PUBLIC.proj\n(table)";
+  "PUBLIC.count_emp_in_proj\n(function)";
+
+  "PUBLIC.Materialized\n(materialized view)" -> "PUBLIC.emp\n(table)" [ style="solid" ];
+  "PUBLIC.Managers\n(view)" -> "PUBLIC.emp\n(table)" [ style="dashed" ];
+  "PUBLIC.checkManagerEmployee\n(function)" -> "PUBLIC.Managers\n(view)" [ style="dashed" ];
+  "PUBLIC.count_emp_in_proj\n(function)" -> "PUBLIC.proj\n(table)" [ style="dashed" ];
+  "PUBLIC.count_emp_in_proj\n(function)" -> "PUBLIC.emp\n(table)" [ style="dashed" ];
+}
+</div>
