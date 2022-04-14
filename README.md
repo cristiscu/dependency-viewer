@@ -5,7 +5,7 @@ Simple tool to connect to Snowflake and generate a HTML file with a DOT graph th
 
 # Database Profile File
 
-Rename the **profiles_db_template.conf** file to **profiles_db.conf**, and customize it with your own Snowflake connection parameters.
+Create a **profiles_db.conf** copy of the **profiles_db_template.conf** file, and customize it with your own Snowflake connection parameters. Your top [default] profile is the active profile, considered by our tool. Below you may define other personal profiles, that you may override under [default] each time you want to change your active connection.
 
 The database and schema are optional:
 * When connecting with no database and no schema, the tool will get all the data through the new **[OBJECT_DEPENDENCIES](https://docs.snowflake.com/en/user-guide/object-dependencies.html)** view.
