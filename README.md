@@ -5,15 +5,7 @@ Simple tool to connect to Snowflake and generate a HTML file with a DOT graph th
 
 # Database Profile File
 
-In the root folder, you need to create a **profiles_db.conf** file with your Snowflake connection parameters, following the template:
-
-<code>[default]</code>  
-<code>account = your-snowflake-account</code>  
-<code>user = your-username</code>  
-<code>role = your-role</code>  
-<code>warehouse = your-warehouse</code>  
-<code>database = your-database</code>  
-<code>schema = your-schema</code>  
+Rename the **profiles_db_template.conf** file to **profiles_db.conf**, and customize it with your own Snowflake connection parameters.
 
 The database and schema are optional:
 * When connecting with no database and no schema, the tool will get all the data through the new OBJECT_DEPENDENCIES view.
@@ -26,7 +18,7 @@ We connect to Snowflake with the Snowflake Connector for Python. We have code fo
 
 Connect with no database and no schema, to show a generated SVG graph in a HTML file for all existing dependencies. Call the tool as below:
 
-<code>python dependency-viewer.py</code>  
+**<code>python dependency-viewer.py</code>**  
 
 The following is what I had from my own Snowflake test account:
 
@@ -61,3 +53,15 @@ The following is what I had for the EmployeesQX.PUBLIC.checkManagerEmployee user
 ![Object Dependencies](/images/account-EmployeesQX.PUBLIC.checkManagerEmployee.png)
 
 All displayed names are fully-qualified, in case you may have inter-database dependencies. You might have referenced or referencing objects from other databases and schemas. The rendering if now top-down, with your named object on top.
+
+# 5. Show All Dependencies on a Database Object
+
+Just like before, connect with both a database and a schema name in the profile file, than call the tool with the simple name of the object. The object name must be case sensitive as well, with no quotes. This time however append a **--reverse** option, which will show the reverse dependency hierarchy of an object:
+
+**<code>python dependency-viewer.py emp --reverse</code>**  
+
+The following is what I had for the EmployeesQX.PUBLIC.emp table displayed before:
+
+![Object Dependencies](/images/account-EmployeesQX.PUBLIC.emp-rev.png)
+
+All displayed names are fully-qualified, in case you may have inter-database dependencies. You might have referenced or referencing objects from other databases and schemas. The rendering if also top-down, with your named object on top. All the arrows point now backwards, to the top, because the top object is a dependent object.

@@ -11,7 +11,7 @@ from pathlib import Path
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 
-def getQuery(database, schema, start):
+def getQuery(database, schema, start, reverse):
     """
     generates the SQL query [from the eventual connected database and schema]:
     (1) everything
@@ -27,7 +27,23 @@ def getQuery(database, schema, start):
                 query += f"\n  and referenced_schema = '{schema}' and referencing_schema = '{schema}'"
         return query
 
-    # build recursice query, starting with a top object
+    # build reverse recursive query, starting with a top object
+    if reverse:
+        return ("with recursive cte as (\n"
+            "  select * from snowflake.account_usage.object_dependencies\n"
+            f"    where referenced_object_name = '{start}'\n"
+            f"      and referenced_database = '{database}'\n"
+            f"      and referenced_schema = '{schema}'\n"
+            "  union all\n"
+            "  select deps.*\n"
+            "    from snowflake.account_usage.object_dependencies deps\n"
+            "    join cte\n"
+            "      on cte.referencing_object_id = deps.referenced_object_id\n"
+            "      and cte.referencing_object_domain = deps.referenced_object_domain\n"
+            ")\n"
+            "select * from cte")
+
+    # build recursive query, starting with a top object
     return ("with recursive cte as (\n"
         "  select * from snowflake.account_usage.object_dependencies\n"
         f"    where referencing_object_name = '{start}'\n"
@@ -50,12 +66,12 @@ def getObjectNode(database, schema, start, db, sch, name, type):
         else: obj = f'{sch}.'
     return f'"{obj}{name}\\n({type.lower()})"'
 
-def getDot(objects, database, schema, start, cur):
+def getDot(objects, database, schema, start, reverse, cur):
     """
     generates and returns a graph in DOT notation
     """
 
-    query = getQuery(database, schema, start)
+    query = getQuery(database, schema, start, reverse)
     print("Generated SQL query:")
     print(query)
 
@@ -75,15 +91,16 @@ def getDot(objects, database, schema, start, cur):
         # add referencing -> referenced edge
         by = str(row[10])
         style = "dotted" if by == "BY_ID" else "dashed" if by == "BY_NAME" else "solid" 
-        edges += f'  {dep} -> {obj} [ style="{style}" ];\n'
+        edges += f'  {dep} -> {obj}' if not reverse else f'  {obj} -> {dep}'
+        edges += f' [ style="{style}" ];\n'
 
-    dir = 'rankdir="LR" ' if start == None else ""
+    rankdir = "LR" if start == None else "TB"
+    dir = "back" if reverse else "forward"
     return ('digraph G {\n\n'
-        + F'  graph [ {dir}bgcolor="#ffffff" ]\n'
-        + '  node [ style="filled" shape="record" color="SkyBlue" ]\n'
-        + '  edge [ penwidth="1" color="#696969" dir="forward" ]\n\n'
-        + f'{nodes}\n'
-        + f'{edges}}}\n')
+        + f'  graph [ rankdir="{rankdir}" bgcolor="#ffffff" ]\n'
+        + f'  node [ style="filled" shape="record" color="SkyBlue" ]\n'
+        + f'  edge [ penwidth="1" color="#696969" dir="{dir}" ]\n\n'
+        + f'{nodes}\n{edges}}}\n')
 
 def saveHtml(filename, s):
     """
@@ -177,11 +194,12 @@ def main():
 
     # simple object name as command line argument?
     start = None
-    if len(sys.argv) == 2:
+    if len(sys.argv) >= 2:
         start = sys.argv[1]
         if database == None or schema == None:
             print("You must connect with both a database and a schema when referencing one object!")
             sys.exit(2)
+    reverse = len(sys.argv) >= 3 and sys.argv[2].lower() == "--reverse"
 
     # change this to connect in a different way: SSO / PWD / KEY-PAIR
     connect_mode = "PWD"
@@ -190,7 +208,7 @@ def main():
 
     # get DOT digraph string
     objects = []
-    s = getDot(objects, database, schema, start, cur)
+    s = getDot(objects, database, schema, start, reverse, cur)
     print("\nGenerated DOT digraph:")
     print(s)
     con.close()
@@ -202,6 +220,7 @@ def main():
         if schema != None:
             filename += f".{schema}"
             if start != None: filename += f".{start}"
+    if reverse: filename += "-rev"
     filename += ".html"
     saveHtml(filename, s)
 

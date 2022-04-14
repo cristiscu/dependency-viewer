@@ -51,4 +51,4 @@ Thumbs.db
 # custom
 build/
 *.spec
-*.conf
+profiles_db.conf
