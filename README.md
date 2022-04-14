@@ -8,7 +8,7 @@ Simple tool to connect to Snowflake and generate a HTML file with a DOT graph th
 Rename the **profiles_db_template.conf** file to **profiles_db.conf**, and customize it with your own Snowflake connection parameters.
 
 The database and schema are optional:
-* When connecting with no database and no schema, the tool will get all the data through the new OBJECT_DEPENDENCIES view.
+* When connecting with no database and no schema, the tool will get all the data through the new **[OBJECT_DEPENDENCIES](https://docs.snowflake.com/en/user-guide/object-dependencies.html)** view.
 * When connecting with a database, the tool will look only for referenced and referencing objects from this database alone, and will skip the database name in the fully-qualified names of the nodes.
 * When connecting with both a database and a schema, the tool will look only for referenced and referencing objects from this database schema alone, and will skip the database and schema names in the fully-qualified names of the nodes.
 
@@ -46,7 +46,7 @@ The displayed names are no longer fully-qualified, because all objects belong to
 
 Connect with both a database and a schema name in the profile file, than call the tool with the simple name of the object. The object name must be case sensitive as well, with no quotes:
 
-<code>python dependency-viewer.py checkManagerEmployee</code>  
+**<code>python dependency-viewer.py checkManagerEmployee</code>**  
 
 The following is what I had for the EmployeesQX.PUBLIC.checkManagerEmployee user-defined function displayed before
 
