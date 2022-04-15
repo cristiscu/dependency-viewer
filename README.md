@@ -14,6 +14,8 @@ The database and schema are optional:
 
 We connect to Snowflake with the Snowflake Connector for Python. We have code for (a) password-based connection, (b) connecting with a Key Pair, and (c) connecting with SSO. For password-based connection, save your password in a SNOWFLAKE_PASSWORD local environment variable. Never add the password or any other sensitive information to your code or to profile files. All names must be case sensitive, with no quotes.
 
+# CLI Executable File
+
 To compile into a CLI executable:
 
 **<code>pip install pyinstaller</code>**  
