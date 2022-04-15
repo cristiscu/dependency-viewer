@@ -16,16 +16,16 @@ digraph G {
   edge [ penwidth="1" color="#696969" dir="forward" ]
 
   "emp\n(table)";
-  "Materialized\n(materialized view)";
   "Managers\n(view)";
   "checkManagerEmployee\n(function)";
   "proj\n(table)";
   "count_emp_in_proj\n(function)";
+  "Materialized\n(materialized view)";
 
-  "Materialized\n(materialized view)" -> "emp\n(table)" [ style="solid" ];
   "Managers\n(view)" -> "emp\n(table)" [ style="dashed" ];
   "checkManagerEmployee\n(function)" -> "Managers\n(view)" [ style="dashed" ];
   "count_emp_in_proj\n(function)" -> "proj\n(table)" [ style="dashed" ];
   "count_emp_in_proj\n(function)" -> "emp\n(table)" [ style="dashed" ];
+  "Materialized\n(materialized view)" -> "emp\n(table)" [ style="solid" ];
 }
 </div>
