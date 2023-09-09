@@ -17,15 +17,15 @@ digraph G {
 
   "emp\n(table)";
   "Managers\n(view)";
-  "checkManagerEmployee\n(function)";
+  "Materialized\n(materialized view)";
   "proj\n(table)";
   "count_emp_in_proj\n(function)";
-  "Materialized\n(materialized view)";
+  "checkManagerEmployee\n(function)";
 
   "Managers\n(view)" -> "emp\n(table)" [ style="dashed" ];
-  "checkManagerEmployee\n(function)" -> "Managers\n(view)" [ style="dashed" ];
+  "Materialized\n(materialized view)" -> "emp\n(table)" [ style="solid" ];
   "count_emp_in_proj\n(function)" -> "proj\n(table)" [ style="dashed" ];
   "count_emp_in_proj\n(function)" -> "emp\n(table)" [ style="dashed" ];
-  "Materialized\n(materialized view)" -> "emp\n(table)" [ style="solid" ];
+  "checkManagerEmployee\n(function)" -> "Managers\n(view)" [ style="dashed" ];
 }
 </div>

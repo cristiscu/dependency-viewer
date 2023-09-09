@@ -58,15 +58,37 @@ def getQuery(database, schema, start, reverse):
         ")\n"
         "select * from cte")
 
-def getObjectNode(database, schema, start, db, sch, name, type):
+class Node:
+    def __init__(self, database, schema, start, db, sch, name, type) -> None:
+        obj = f'{db}.{sch}.'
+        if start is None and database is not None:
+            obj = '' if schema is not None else f'{sch}.'
+        self.name = f'{obj}{name}'
+        self.type = type.lower()
 
-    obj = f'{db}.{sch}.'
-    if start == None and database != None:
-        if schema != None: obj = ''
-        else: obj = f'{sch}.'
-    return f'"{obj}{name}\\n({type.lower()})"'
+        self.by_id = [];
+        self.by_name = [];
+        self.by_name_and_id = []
 
-def getDot(objects, database, schema, start, reverse, cur):
+    def addDep(self, dep, by):
+        if by == "BY_ID": self.by_id.append(dep)
+        elif by == "BY_NAME": self.by_name.append(dep)
+        else: self.by_name_and_id.append(dep)
+
+    def getNode(self):
+        return f'"{self.name}\\n({self.type})"'
+    
+    def getEdges(self):
+        s = ""
+        for dep in self.by_id:
+            s += f'  {self.getNode()} -> {dep.getNode()} [ style="dotted" ];\n'
+        for dep in self.by_name:
+            s += f'  {self.getNode()} -> {dep.getNode()} [ style="dashed" ];\n'
+        for dep in self.by_name_and_id:
+            s += f'  {self.getNode()} -> {dep.getNode()} [ style="solid" ];\n'
+        return s
+
+def getDot(database, schema, start, reverse, cur):
     """
     generates and returns a graph in DOT notation
     """
@@ -75,32 +97,36 @@ def getDot(objects, database, schema, start, reverse, cur):
     print("Generated SQL query:")
     print(query)
 
-    nodes = ""; edges = ""
+    objects = [];
     results = cur.execute(query).fetchall()
     for row in results:
         # add referenced object node
-        obj = getObjectNode(database, schema, start,
+        obj = Node(database, schema, start,
             str(row[0]), str(row[1]), str(row[2]), str(row[4]))
-        if obj not in objects: objects.append(obj); nodes += f'  {obj};\n'
+        if obj not in objects: objects.append(obj)
 
         # add referencing object node
-        dep = getObjectNode(database, schema, start,
+        dep = Node(database, schema, start,
             str(row[5]), str(row[6]), str(row[7]), str(row[9]))
-        if dep not in objects: objects.append(dep); nodes += f'  {dep};\n'
+        if dep not in objects: objects.append(dep)
 
         # add referencing -> referenced edge
         by = str(row[10])
-        style = "dotted" if by == "BY_ID" else "dashed" if by == "BY_NAME" else "solid" 
-        edges += f'  {dep} -> {obj}' if not reverse else f'  {obj} -> {dep}'
-        edges += f' [ style="{style}" ];\n'
+        if not reverse: dep.addDep(obj, by)
+        else: obj.addDep(dep, by)
+
+    # create DOT nodes and edges
+    s = ""
+    for obj in objects: s += f'  {obj.getNode()};\n'
+    s += '\n'
+    for obj in objects: s += obj.getEdges()
 
     rankdir = "LR" if start == None else "TB"
     dir = "back" if reverse else "forward"
     return ('digraph G {\n\n'
         + f'  graph [ rankdir="{rankdir}" bgcolor="#ffffff" ]\n'
         + f'  node [ style="filled" shape="record" color="SkyBlue" ]\n'
-        + f'  edge [ penwidth="1" color="#696969" dir="{dir}" ]\n\n'
-        + f'{nodes}\n{edges}}}\n')
+        + f'  edge [ penwidth="1" color="#696969" dir="{dir}" ]\n\n{s}}}\n')
 
 def saveHtml(filename, s):
     """
@@ -207,8 +233,7 @@ def main():
     cur = con.cursor()
 
     # get DOT digraph string
-    objects = []
-    s = getDot(objects, database, schema, start, reverse, cur)
+    s = getDot(database, schema, start, reverse, cur)
     print("\nGenerated DOT digraph:")
     print(s)
     con.close()

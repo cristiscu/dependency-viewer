@@ -20,7 +20,7 @@ To compile into a CLI executable:
 
 **<code>pip install pyinstaller</code>**  
 **<code>pyinstaller --onefile dependency-viewer.py</code>**  
-**<code>dist/dependency-viewer</code>**  
+**<code>dist\dependency-viewer</code>**  
 
 # 1. Show All Dependencies from the Current Account
 
